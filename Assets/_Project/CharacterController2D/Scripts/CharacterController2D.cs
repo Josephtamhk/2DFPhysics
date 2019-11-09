@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using TF.Colliders;
 using TF.Core;
 using FixedPointy;
+using TF;
 
 /// <summary>
 /// Conversion of https://github.com/prime31/CharacterController2D.
@@ -15,9 +16,9 @@ public class CharacterController2D : MonoBehaviour
     #region internal types
     struct CharacterRaycastOrigins
     {
-        public FixVec3 topLeft;
-        public FixVec3 bottomRight;
-        public FixVec3 bottomLeft;
+        public FixVec2 topLeft;
+        public FixVec2 bottomRight;
+        public FixVec2 bottomLeft;
     }
 
     public class CharacterCollisionState2D
@@ -56,7 +57,7 @@ public class CharacterController2D : MonoBehaviour
 
     #region events, properties and fields
 
-    public event Action<RaycastHit2D> onControllerCollidedEvent;
+    public event Action<TFRaycastHit2D> onControllerCollidedEvent;
     public event Action<TFCollider> onTriggerEnterEvent;
     public event Action<TFCollider> onTriggerStayEvent;
     public event Action<TFCollider> onTriggerExitEvent;
@@ -136,7 +137,7 @@ public class CharacterController2D : MonoBehaviour
     [HideInInspector] [NonSerialized] public TFRigidbody rigidBody2D;
 
     [HideInInspector] [NonSerialized] public CharacterCollisionState2D collisionState = new CharacterCollisionState2D();
-    [HideInInspector] [NonSerialized] public FixVec3 velocity;
+    [HideInInspector] [NonSerialized] public FixVec2 velocity;
     public bool isGrounded { get { return collisionState.below; } }
 
     readonly Fix kSkinWidthFloatFudgeFactor = (Fix)0.001f;
@@ -151,13 +152,13 @@ public class CharacterController2D : MonoBehaviour
     /// <summary>
     /// stores our raycast hit during movement
     /// </summary>
-    RaycastHit2D _raycastHit;
+    TFRaycastHit2D _raycastHit;
 
     /// <summary>
     /// stores any raycast hits that occur this frame. we have to store them in case we get a hit moving
     /// horizontally and vertically so that we can send the events after all collision state is set
     /// </summary>
-    List<RaycastHit2D> _raycastHitsThisFrame = new List<RaycastHit2D>(2);
+    List<TFRaycastHit2D> _raycastHitsThisFrame = new List<TFRaycastHit2D>(2);
 
     // horizontal/vertical movement data
     Fix _verticalDistanceBetweenRays;
@@ -197,7 +198,6 @@ public class CharacterController2D : MonoBehaviour
         }
     }
 
-
     public void TFOnTriggerEnter(TFCollider col)
     {
         if (onTriggerEnterEvent != null)
@@ -226,13 +226,27 @@ public class CharacterController2D : MonoBehaviour
         Debug.DrawRay(start, dir, color);
     }
 
+    private void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            var v3 = Input.mousePosition;
+            v3.z = 0;
+            v3 = Camera.main.ScreenToWorldPoint(v3);
+
+            FixVec2 pointB = new FixVec2((Fix)v3.x, (Fix)v3.y);
+
+            TFRaycastHit2D h = TFPhysics.Raycast((FixVec2)tfTransform.Position, (FixVec2)(pointB - tfTransform.Position).Normalized(), 5, platformMask);
+        }
+    }
+
     #region Public
     /// <summary>
     /// attempts to move the character to position + deltaMovement. Any colliders in the way will cause the movement to
     /// stop when run into.
     /// </summary>
     /// <param name="deltaMovement">Delta movement.</param>
-    public void move(FixVec3 deltaMovement)
+    public void move(FixVec2 deltaMovement)
     {
         // save off our current grounded state which we will use for wasGroundedLastFrame and becameGroundedThisFrame
         collisionState.wasGroundedLastFrame = collisionState.below;
@@ -259,7 +273,6 @@ public class CharacterController2D : MonoBehaviour
             moveVertically(ref deltaMovement);
 
         // move then update our state
-        deltaMovement.z = 0;
         tfTransform.Position += deltaMovement;
 
         // only calculate velocity if we have a non-zero deltaTime
@@ -291,7 +304,7 @@ public class CharacterController2D : MonoBehaviour
     {
         do
         {
-            move(new FixVec3(0, -1, 0));
+            move(new FixVec2(0, -1));
         } while (!isGrounded);
     }
 
@@ -335,7 +348,7 @@ public class CharacterController2D : MonoBehaviour
     /// we have to increase the ray distance skinWidth then remember to remove skinWidth from deltaMovement before
     /// actually moving the player
     /// </summary>
-    void moveHorizontally(ref FixVec3 deltaMovement)
+    void moveHorizontally(ref FixVec2 deltaMovement)
     {
         var isGoingRight = deltaMovement.x > 0;
         var rayDistance = FixMath.Abs(deltaMovement.x) + _skinWidth;
@@ -348,6 +361,53 @@ public class CharacterController2D : MonoBehaviour
 
             // if we are grounded we will include oneWayPlatforms only on the first ray (the bottom one). this will allow us to
             // walk up sloped oneWayPlatforms.
+            if(i == 0 && collisionState.wasGroundedLastFrame)
+            {
+                _raycastHit = TFPhysics.Raycast(ray, rayDirection, rayDistance, platformMask);
+            }
+            else
+            {
+                _raycastHit = TFPhysics.Raycast(ray, rayDirection, rayDistance, platformMask & ~oneWayPlatformMask);
+            }
+
+            if (_raycastHit)
+            {
+                // the bottom ray can hit a slope but no other ray can so we have special handling for these cases
+                if(i == 0 && handleHorizontalSlope(ref deltaMovement, FixVec2.Angle(_raycastHit.normal, FixVec2.up))){
+                    _raycastHitsThisFrame.Add(_raycastHit);
+                    // if we weren't grounded last frame, that means we're landing on a slope horizontally.
+                    // this ensures that we stay flush to that slope
+                    if (!collisionState.wasGroundedLastFrame)
+                    {
+                        Fix flushDistance = FixMath.Sign(deltaMovement.x) * (_raycastHit.distance - skinWidth);
+                        tfTransform.Position += new FixVec2(flushDistance, 0);
+                    }
+                    break;
+                }
+
+                // set our new deltaMovement and recalculate the rayDistance taking it into account
+                deltaMovement.x = _raycastHit.point.x - ray.x;
+                rayDistance = FixMath.Abs(deltaMovement.x);
+
+                // remember to remove the skinWidth from our deltaMovement
+                if (isGoingRight)
+                {
+                    deltaMovement.x -= _skinWidth;
+                    collisionState.right = true;
+                }
+                else
+                {
+                    deltaMovement.x += _skinWidth;
+                    collisionState.left = true;
+                }
+
+                _raycastHitsThisFrame.Add(_raycastHit);
+
+                // we add a small fudge factor for the float operations here. if our rayDistance is smaller
+                // than the width + fudge bail out because we have a direct impact
+                if (rayDistance < _skinWidth + kSkinWidthFloatFudgeFactor)
+                    break;
+            }
         }
     }
 
@@ -357,15 +417,55 @@ public class CharacterController2D : MonoBehaviour
     /// <returns><c>true</c>, if horizontal slope was handled, <c>false</c> otherwise.</returns>
     /// <param name="deltaMovement">Delta movement.</param>
     /// <param name="angle">Angle.</param>
-    bool handleHorizontalSlope(ref FixVec3 deltaMovement, Fix angle)
+    bool handleHorizontalSlope(ref FixVec2 deltaMovement, Fix angle)
     {
         // disregard 90 degree angles (walls)
         if (FixMath.Round(angle) == 90)
             return false;
 
-        if(angle < slopeLimit)
+        if (angle < slopeLimit)
         {
+            // we only need to adjust the deltaMovement if we are not jumping
+            // TODO: this uses a magic number which isn't ideal! The alternative is to have the user pass in if there is a jump this frame
+            if (deltaMovement.y < jumpingThreshold)
+            {
+                // apply the slopeModifier to slow our movement up the slope
+                Fix slopeModifier = (Fix)slopeSpeedMultiplier.Evaluate((float)angle);
+                deltaMovement.x *= slopeModifier;
 
+                // we dont set collisions on the sides for this since a slope is not technically a side collision.
+                // smooth y movement when we climb. we make the y movement equivalent to the actual y location that corresponds
+                // to our new x location using our good friend Pythagoras
+                deltaMovement.y = FixMath.Abs(FixMath.Tan(angle * FixMath.Deg2Rad) * deltaMovement.x);
+                var isGoingRight = deltaMovement.x > 0;
+
+                // safety check. we fire a ray in the direction of movement just in case the diagonal we calculated above ends up
+                // going through a wall. if the ray hits, we back off the horizontal movement to stay in bounds.
+                var ray = isGoingRight ? _raycastOrigins.bottomRight : _raycastOrigins.bottomLeft;
+                TFRaycastHit2D raycastHit;
+                if (collisionState.wasGroundedLastFrame)
+                {
+                    raycastHit = TFPhysics.Raycast((FixVec2)ray, (FixVec2)deltaMovement.Normalized(), deltaMovement.GetMagnitude(), platformMask);
+                }
+                else
+                {
+                    raycastHit = TFPhysics.Raycast((FixVec2)ray, (FixVec2)deltaMovement.Normalized(), deltaMovement.GetMagnitude(), platformMask & ~oneWayPlatformMask);
+                }
+
+                if (raycastHit)
+                {
+                    // we crossed an edge when using Pythagoras calculation, so we set the actual delta movement to the ray hit location
+                    deltaMovement = raycastHit.point - ray;
+                    if (isGoingRight)
+                        deltaMovement.x -= _skinWidth;
+                    else
+                        deltaMovement.x += _skinWidth;
+                }
+
+                _isGoingUpSlope = true;
+                collisionState.below = true;
+                collisionState.slopeAngle = -angle;
+            }
         }
         else // too steep. get out of here
         {
@@ -375,7 +475,7 @@ public class CharacterController2D : MonoBehaviour
         return true;
     }
 
-    void moveVertically(ref FixVec3 deltaMovement)
+    void moveVertically(ref FixVec2 deltaMovement)
     {
         var isGoingUp = deltaMovement.y > 0;
         var rayDistance = FixMath.Abs(deltaMovement.y) + _skinWidth;
@@ -388,11 +488,49 @@ public class CharacterController2D : MonoBehaviour
         // if we are moving up, we should ignore the layers in oneWayPlatformMask
         var mask = platformMask;
         if ((isGoingUp && !collisionState.wasGroundedLastFrame) || ignoreOneWayPlatformsThisFrame)
+        {
             mask &= ~oneWayPlatformMask;
+        }
 
         for (var i = 0; i < totalVerticalRays; i++)
         {
             var ray = new FixVec2(initialRayOrigin.x + i * _horizontalDistanceBetweenRays, initialRayOrigin.y);
+
+            _raycastHit = TFPhysics.Raycast(ray, rayDirection, rayDistance, mask);
+            if (_raycastHit)
+            {
+                // set our new deltaMovement and recalculate the rayDistance taking it into account
+                deltaMovement.y = _raycastHit.point.y - ray.y;
+                rayDistance = FixMath.Abs(deltaMovement.y);
+
+                // remember to remove the skinWidth from our deltaMovement
+                if (isGoingUp)
+                {
+                    deltaMovement.y -= _skinWidth;
+                    collisionState.above = true;
+                }
+                else
+                {
+                    deltaMovement.y += _skinWidth;
+                    collisionState.below = true;
+                }
+
+                _raycastHitsThisFrame.Add(_raycastHit);
+
+                // this is a hack to deal with the top of slopes. if we walk up a slope and reach the apex we can get in a situation
+                // where our ray gets a hit that is less then skinWidth causing us to be ungrounded the next frame due to residual velocity.
+                if (!isGoingUp && deltaMovement.y > Fix.zero)
+                {
+                    _isGoingUpSlope = true;
+                }
+
+                // we add a small fudge factor for the float operations here. if our rayDistance is smaller
+                // than the width + fudge bail out because we have a direct impact
+                if (rayDistance < _skinWidth + kSkinWidthFloatFudgeFactor)
+                {
+                    break;
+                }
+            }
         }
     }
 
@@ -401,8 +539,40 @@ public class CharacterController2D : MonoBehaviour
     /// the player stays grounded and the slopeSpeedModifier is taken into account to speed up movement.
     /// </summary>
     /// <param name="deltaMovement">Delta movement.</param>
-    private void handleVerticalSlope(ref FixVec3 deltaMovement)
+    private void handleVerticalSlope(ref FixVec2 deltaMovement)
     {
+        // slope check from the center of our collider
+        Fix centerOfCollider = (_raycastOrigins.bottomLeft.x + _raycastOrigins.bottomRight.x) * (Fix.one / 2);
+        FixVec2 rayDirection = -FixVec2.up;
+
+        // the ray distance is based on our slopeLimit
+        Fix slopeCheckRayDistance = _slopeLimitTangent * (_raycastOrigins.bottomRight.x - centerOfCollider);
+
+        FixVec2 slopeRay = new FixVec2(centerOfCollider, _raycastOrigins.bottomLeft.y);
+        _raycastHit = TFPhysics.Raycast(slopeRay, rayDirection, slopeCheckRayDistance, platformMask);
+        if (_raycastHit)
+        {
+            // bail out if we have no slope
+            var angle = FixVec2.Angle(_raycastHit.normal, FixVec2.up);
+            if (angle == 0)
+            {
+                return;
+            }
+
+            // we are moving down the slope if our normal and movement direction are in the same x direction
+            var isMovingDownSlope = FixMath.Sign(_raycastHit.normal.x) == FixMath.Sign(deltaMovement.x);
+            if (isMovingDownSlope)
+            {
+                // going down we want to speed up in most cases so the slopeSpeedMultiplier curve should be > 1 for negative angles
+                Fix slopeModifier = (Fix)slopeSpeedMultiplier.Evaluate((float)-angle);
+                // we add the extra downward movement here to ensure we "stick" to the surface below
+                deltaMovement.y += _raycastHit.point.y - slopeRay.y - skinWidth;
+                deltaMovement = new FixVec2(deltaMovement.x, deltaMovement.y)
+                    + new FixVec2(deltaMovement.x * slopeModifier * (1 - (angle/90)), (deltaMovement.x * slopeModifier * (angle/90)));
+                collisionState.movingDownSlope = true;
+                collisionState.slopeAngle = angle;
+            }
+        }
     }
     #endregion
 }

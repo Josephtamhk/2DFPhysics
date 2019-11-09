@@ -213,5 +213,10 @@ namespace FixedPointy {
         {
             return x.raw.GetHashCode() ^ y.raw.GetHashCode() << 2;
         }
+
+        public static Fix Angle(FixVec2 from, FixVec2 to)
+        {
+            return FixMath.Acos(FixMath.Clamp(FixVec2.Dot(from.Normalized(), from.Normalized()), -Fix.one, Fix.one)) * new Fix(3754936);
+        }
     }
 }

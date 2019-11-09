@@ -67,10 +67,10 @@ namespace TF.Core
         #endregion
 
         #region Physics
-        public bool Raycast(FixVec2 pointA, FixVec2 pointB)
+        public static TFRaycastHit2D Raycast(FixVec2 origin, FixVec2 direction, Fix distance, LayerMask mask)
         {
-            TFRaycastHit2D hit;
-            return physicsScene.Raycast(pointA, pointB, out hit);
+            TFRaycastHit2D hit = physicsScene.Raycast(origin, direction, distance);
+            return hit;
         }
         #endregion
 

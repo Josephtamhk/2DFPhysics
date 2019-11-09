@@ -56,7 +56,6 @@ namespace TF.Core
 
             // Separating axis for segment (Gino, p80).
             // |dot(v, p1 - c)| > dot(|v|, h)
-
             Fix maxFraction = Fix.one;
 
             // Build a bounding box for the segment.
@@ -95,6 +94,7 @@ namespace TF.Core
 
                 if (node.IsLeaf())
                 {
+                    // If value is >= 0, then we hit the node.
                     Fix value = callback.RayCastCallback(pointA, pointB, maxFraction, nodeId);
 
                     if (value == Fix.zero)

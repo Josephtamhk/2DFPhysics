@@ -238,11 +238,11 @@ namespace TF.Core
             dynamicTree.Query(callback, aabb);
         }
 
-        public bool Raycast(FixVec2 pointA, FixVec2 pointB, out TFRaycastHit2D hit)
+        public TFRaycastHit2D Raycast(FixVec2 origin, FixVec2 direction, Fix distance)
         {
-            hit = default;
-            dynamicTree.Raycast(this, pointA, pointB);
-            return false;
+            TFRaycastHit2D hit = new TFRaycastHit2D();
+            dynamicTree.Raycast(this, origin, origin + direction*distance);
+            return hit;
         }
 
         public Fix RayCastCallback(FixVec2 pointA, FixVec2 pointB, Fix maxFraction, int proxyID)
@@ -260,7 +260,12 @@ namespace TF.Core
 
             Fix fraction = rHit.fraction;
             FixVec2 point = (Fix.one - fraction) * pointA + fraction * pointB;
-            return Fix.zero;
+            return RayCastCallback(rigid, rHit.point, rHit.normal, rHit.fraction);
+        }
+
+        private Fix RayCastCallback(TFRigidbody rigidbody, FixVec2 point, FixVec2 normal, Fix fraction)
+        {
+            return 1;
         }
     }
 }
