@@ -52,7 +52,7 @@ namespace TF.Colliders
 
         public virtual bool Raycast(out TFRaycastHit2D hit, FixVec2 pointA, FixVec2 pointB, Fix maxFraction)
         {
-            hit = default;
+            hit = new TFRaycastHit2D();
             return false;
         }
     }

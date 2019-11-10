@@ -240,17 +240,14 @@ namespace TF.Core
 
         public TFRaycastHit2D Raycast(FixVec2 origin, FixVec2 direction, Fix distance)
         {
-            TFRaycastHit2D hit = new TFRaycastHit2D();
-            dynamicTree.Raycast(this, origin, origin + direction*distance);
+            TFRaycastHit2D hit = dynamicTree.Raycast(this, origin, origin + direction*distance);
             return hit;
         }
 
-        public Fix RayCastCallback(FixVec2 pointA, FixVec2 pointB, Fix maxFraction, int proxyID)
+        public Fix RayCastCallback(FixVec2 pointA, FixVec2 pointB, Fix maxFraction, int proxyID, out TFRaycastHit2D hit)
         {
-            bool hit = false;
             TFRigidbody rigid = bodies[dynamicTree.nodes[proxyID].bodyIndex];
-            TFRaycastHit2D rHit;
-            hit = rigid.coll.Raycast(out rHit, pointA, pointB, maxFraction);
+            rigid.coll.Raycast(out hit, pointA, pointB, maxFraction);
 
             if (!hit)
             {
@@ -258,9 +255,9 @@ namespace TF.Core
                 return maxFraction;
             }
 
-            Fix fraction = rHit.fraction;
+            Fix fraction = hit.fraction;
             FixVec2 point = (Fix.one - fraction) * pointA + fraction * pointB;
-            return RayCastCallback(rigid, rHit.point, rHit.normal, rHit.fraction);
+            return RayCastCallback(rigid, hit.point, hit.normal, hit.fraction);
         }
 
         private Fix RayCastCallback(TFRigidbody rigidbody, FixVec2 point, FixVec2 normal, Fix fraction)

@@ -21,6 +21,6 @@ namespace TF.Core
         /// <param name="maxFraction"></param>
         /// <param name="proxyID"></param>
         /// <returns>0 terminates the raycast, the fraction of a ray to clip it (0-1), or just 1 to continue.</returns>
-        Fix RayCastCallback(FixVec2 pointA, FixVec2 pointB, Fix maxFraction, int proxyID);
+        Fix RayCastCallback(FixVec2 pointA, FixVec2 pointB, Fix maxFraction, int proxyID, out TFRaycastHit2D hit);
     }
 }

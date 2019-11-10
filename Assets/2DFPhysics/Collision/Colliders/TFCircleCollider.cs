@@ -66,6 +66,7 @@ namespace TF.Colliders
                 hit.fraction = a;
                 hit.normal = s + a * r;
                 hit.normal.Normalize();
+                hit.collider = this;
                 return true;
             }
             return false;

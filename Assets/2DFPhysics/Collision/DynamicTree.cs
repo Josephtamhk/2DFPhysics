@@ -41,12 +41,13 @@ namespace TF.Core
         }
 
         #region Queries
-        internal void Raycast(ITreeRaycastCallback callback, FixVec2 pointA, FixVec2 pointB)
+        internal TFRaycastHit2D Raycast(ITreeRaycastCallback callback, FixVec2 pointA, FixVec2 pointB)
         {
+            TFRaycastHit2D hit = new TFRaycastHit2D();
             FixVec2 r = pointB - pointA;
             if (r.GetMagnitudeSquared() <= Fix.zero)
             {
-                return;
+                return hit;
             }
             r.Normalize();
 
@@ -66,6 +67,8 @@ namespace TF.Core
 
             Stack<int> stack = new Stack<int>();
             stack.Push(rootIndex);
+
+            List<TFRaycastOutput> hitNodes = new List<TFRaycastOutput>(2);
 
             while (stack.Count > 0)
             {
@@ -95,16 +98,27 @@ namespace TF.Core
                 if (node.IsLeaf())
                 {
                     // If value is >= 0, then we hit the node.
-                    Fix value = callback.RayCastCallback(pointA, pointB, maxFraction, nodeId);
+                    TFRaycastHit2D rHit;
+                    Fix value = callback.RayCastCallback(pointA, pointB, maxFraction, nodeId, out rHit);
 
                     if (value == Fix.zero)
                     {
                         // The client has terminated the ray cast.
-                        return;
+                        if (rHit)
+                        {
+                            // We actually hit the node, add it to the list.
+                            hitNodes.Add(new TFRaycastOutput(nodeId, rHit));
+                        }
+                        break;
                     }
 
                     if (value > Fix.zero)
                     {
+                        if (rHit)
+                        {
+                            // We actually hit the node, add it to th elist.
+                            hitNodes.Add(new TFRaycastOutput(nodeId, rHit));
+                        }
                         // Update segment bounding box.
                         maxFraction = value;
                         FixVec2 g = pointA + maxFraction * (pointB - pointA);
@@ -118,6 +132,18 @@ namespace TF.Core
                     stack.Push(node.rightChildIndex);
                 }
             }
+
+            // Decide which node was the closest to the starting point.
+            Fix closestNode = maxFraction;
+            for(int i = 0; i < hitNodes.Count; i++)
+            {
+                if(hitNodes[i].hit.fraction < closestNode)
+                {
+                    closestNode = hitNodes[i].hit.fraction;
+                    hit = hitNodes[i].hit;
+                }
+            }
+            return hit;
         }
         #endregion
 
