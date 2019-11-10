@@ -203,9 +203,78 @@ namespace TF.Colliders
             return vertices[index] * tdTransform.LocalScale;
         }
 
+        public override bool Raycast(out TFRaycastHit2D hit, FixVec2 pointA, FixVec2 pointB, Fix maxFraction)
+        {
+            hit = new TFRaycastHit2D();
+
+            // Put the ray into the polygon's frame of reference.
+            var p1 = u.Transposed() * (pointA - (FixVec2)tdTransform.Position);
+            var p2 = u.Transposed() * (pointB - (FixVec2)tdTransform.Position);
+            var d = p2 - p1;
+
+            Fix lower = Fix.zero, upper = maxFraction;
+
+
+            var index = -1;
+
+            for (var i = 0; i < vertices.Count; ++i)
+            {
+                // p = p1 + a * d
+                // dot(normal, p - v) = 0
+                // dot(normal, p1 - v) + a * dot(normal, d) = 0
+                var numerator = FixVec2.Dot(normals[i], GetVertex(i) - p1);
+                var denominator = FixVec2.Dot(normals[i], d);
+
+                if (denominator == Fix.zero)
+                {
+                    if (numerator < Fix.zero)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    // Note: we want this predicate without division:
+                    // lower < numerator / denominator, where denominator < 0
+                    // Since denominator < 0, we have to flip the inequality:
+                    // lower < numerator / denominator <==> denominator * lower > numerator.
+                    if (denominator < Fix.zero && numerator < lower * denominator)
+                    {
+                        // Increase lower.
+                        // The segment enters this half-space.
+                        lower = numerator / denominator;
+                        index = i;
+                    }
+                    else if (denominator > Fix.zero && numerator < upper * denominator)
+                    {
+                        // Decrease upper.
+                        // The segment exits this half-space.
+                        upper = numerator / denominator;
+                    }
+                }
+
+                // The use of epsilon here causes the assert on lower to trip
+                // in some cases. Apparently the use of epsilon was to make edge
+                // shapes work, but now those are handled separately.
+                //if (upper < lower - b2_epsilon)
+                if (upper < lower)
+                {
+                    return false;
+                }
+            }
+
+            if (index >= 0)
+            {
+                hit.fraction = lower;
+                hit.normal = tdTransform.Rotation * normals[index];
+                hit.collider = this;
+                return true;
+            }
+            return false;
+        }
 
 #if UNITY_EDITOR
-        void OnDrawGizmosSelected()
+            void OnDrawGizmosSelected()
         {
             if(vertices.Count == 0)
             {
