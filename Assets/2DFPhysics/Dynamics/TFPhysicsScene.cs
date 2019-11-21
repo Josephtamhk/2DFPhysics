@@ -238,7 +238,7 @@ namespace TF.Core
             dynamicTree.Query(callback, aabb);
         }
 
-        public TFRaycastHit2D Raycast(FixVec2 origin, FixVec2 direction, Fix distance)
+        public TFRaycastHit2D Raycast(FixVec2 origin, FixVec2 direction, Fix distance, LayerMask mask)
         {
             TFRaycastHit2D hit = dynamicTree.Raycast(this, origin, origin + direction*distance);
             return hit;

@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using FixedPointy;
+using TF.Core;
 
-namespace TF.Core.Editor
+namespace TF.Editor
 {
     [CustomEditor(typeof(TFTransform))]
     public class TFTransformEditor : UnityEditor.Editor

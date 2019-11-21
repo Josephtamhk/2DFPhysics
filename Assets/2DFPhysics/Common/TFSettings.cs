@@ -20,5 +20,9 @@ namespace TF.Core
         [Header("Dynamic Tree")]
         public Fix aabbFattening = 1;
         public Fix aabbMultiplier = 1;
+        
+        [Header("Layers")]
+        [HideInInspector] public string[] layers = new string[32];
+        [HideInInspector] public int[] layerCollisionMatrix = new int[32];
     }
 }
