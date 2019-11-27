@@ -72,6 +72,11 @@ namespace TF.Editor
                                 continue;
                             }
                             layersMatrixes[i][w] = EditorGUILayout.Toggle(t.layers[w], layersMatrixes[i][w]);
+                            if (GUI.changed)
+                            {
+                                // Set the equivalent to the same value.
+                                layersMatrixes[w][i] = layersMatrixes[i][w];
+                            }
                         }
                         EditorGUI.indentLevel--;
                     }
@@ -86,6 +91,7 @@ namespace TF.Editor
                 {
                     t.layerCollisionMatrix[i] = (int)BitArrayToU64(new BitArray(layersMatrixes[i]));
                 }
+                EditorUtility.SetDirty(t);
             }
         }
 
