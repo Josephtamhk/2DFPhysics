@@ -9,6 +9,7 @@ namespace TF.Core.Editor
     [CustomPropertyDrawer(typeof(TFLayerMask))]
     public class TFLayermaskPropertyDrawer : PropertyDrawer
     {
+
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             EditorGUI.BeginProperty(position, label, property);
@@ -20,9 +21,10 @@ namespace TF.Core.Editor
 
             position = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Passive), label);
 
-            var valueRect = new Rect(position.x, position.y, 45, position.height);
+            var valueRect = new Rect(position.x, position.y, 75, position.height);
 
-            EditorGUI.LabelField(valueRect, "0");
+            property.FindPropertyRelative("mask").intValue = EditorGUI.MaskField(valueRect, 
+                property.FindPropertyRelative("mask").intValue, TFPhysics.instance.settings.layers);
 
             EditorGUI.EndProperty();
         }

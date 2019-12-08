@@ -7,19 +7,7 @@ namespace TF
     [System.Serializable]
     public struct TFLayerMask
     {
-        private int mask;
-
-        public int value
-        {
-            get
-            {
-                return mask;
-            }
-            set
-            {
-                mask = value;
-            }
-        }
+        public int mask;
 
         public static implicit operator int(TFLayerMask mask)
         {
