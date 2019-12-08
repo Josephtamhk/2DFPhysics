@@ -89,18 +89,18 @@ public class CharacterController2D : MonoBehaviour
     /// <summary>
     /// mask with all layers that the player should interact with
     /// </summary>
-    public LayerMask platformMask = 0;
+    public TFLayerMask platformMask = 0;
 
     /// <summary>
     /// mask with all layers that trigger events should fire when intersected
     /// </summary>
-    public LayerMask triggerMask = 0;
+    public TFLayerMask triggerMask = 0;
 
     /// <summary>
     /// mask with all layers that should act as one-way platforms. Note that one-way platforms should always be EdgeCollider2Ds. This is because it does not support being
     /// updated anytime outside of the inspector for now.
     /// </summary>
-    [SerializeField] LayerMask oneWayPlatformMask = 0;
+    [SerializeField] TFLayerMask oneWayPlatformMask = 0;
 
     /// <summary>
     /// the max slope angle that the CC2D can climb

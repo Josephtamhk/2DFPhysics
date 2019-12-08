@@ -24,5 +24,7 @@ namespace TF.Core
         [Header("Layers")]
         [HideInInspector] public string[] layers = new string[32];
         [HideInInspector] public int[] layerCollisionMatrix = new int[32];
+
+
     }
 }

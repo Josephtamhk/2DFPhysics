@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace TF
 {
+    [System.Serializable]
     public struct TFLayerMask
     {
         private int mask;

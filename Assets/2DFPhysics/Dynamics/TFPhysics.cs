@@ -9,9 +9,11 @@ using UnityEditor;
 
 namespace TF.Core
 {
+    [ExecuteInEditMode]
     public class TFPhysics : MonoBehaviour
     {
         public static TFPhysics instance;
+        public static TFSettings s;
         public static TFPhysicsScene physicsScene = new TFPhysicsScene();
 
         [HideInInspector] public Fix resting;
@@ -25,11 +27,27 @@ namespace TF.Core
         private void Awake()
         {
             instance = this;
+            s = settings;
             resting = (settings.gravity * settings.deltaTime).GetMagnitudeSquared() + Fix.Epsilon;
         }
 
+        private void Update()
+        {
+            if (!Application.isPlaying)
+            {
+                if (instance != this)
+                {
+                    instance = this;
+                }
+            }
+        }
+
         private void FixedUpdate()
-        { 
+        {
+            if (!Application.isPlaying)
+            {
+                return;
+            }
             if (settings.AutoSimulation)
             {
                 StepPhysics(settings.deltaTime);
@@ -67,7 +85,7 @@ namespace TF.Core
         #endregion
 
         #region Physics
-        public static TFRaycastHit2D Raycast(FixVec2 origin, FixVec2 direction, Fix distance, LayerMask mask)
+        public static TFRaycastHit2D Raycast(FixVec2 origin, FixVec2 direction, Fix distance, TFLayerMask mask)
         {
             TFRaycastHit2D hit = physicsScene.Raycast(origin, direction, distance, mask);
             return hit;

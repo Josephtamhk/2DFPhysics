@@ -393,6 +393,7 @@ MonoBehaviour:
     raw: 0
   gravityScale:
     raw: 0
+  layer: 2
   info:
     position:
       x:
@@ -869,6 +870,7 @@ MonoBehaviour:
     raw: 0
   gravityScale:
     raw: 0
+  layer: 0
   info:
     position:
       x:
@@ -971,6 +973,7 @@ MonoBehaviour:
     raw: 0
   gravityScale:
     raw: 65536
+  layer: 0
   info:
     position:
       x:
