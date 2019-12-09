@@ -240,13 +240,22 @@ namespace TF.Core
 
         public TFRaycastHit2D Raycast(FixVec2 origin, FixVec2 direction, Fix distance, TFLayerMask mask)
         {
-            TFRaycastHit2D hit = dynamicTree.Raycast(this, origin, origin + direction*distance);
+            TFRaycastHit2D hit = dynamicTree.Raycast(this, origin, origin + direction*distance, mask);
             return hit;
         }
 
-        public Fix RayCastCallback(FixVec2 pointA, FixVec2 pointB, Fix maxFraction, int proxyID, out TFRaycastHit2D hit)
+        public Fix RayCastCallback(FixVec2 pointA, FixVec2 pointB, Fix maxFraction, int proxyID, out TFRaycastHit2D hit, TFLayerMask mask)
         {
             TFRigidbody rigid = bodies[dynamicTree.nodes[proxyID].bodyIndex];
+
+
+            if(!(mask == (mask | (1 << rigid.layer))))
+            {
+                // This object is not in the mask, ignore it.
+                hit = new TFRaycastHit2D();
+                return maxFraction;
+            }
+
             rigid.coll.Raycast(out hit, pointA, pointB, maxFraction);
 
             if (!hit)

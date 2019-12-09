@@ -430,6 +430,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rb: {fileID: 810573846}
   charController: {fileID: 810573848}
+  movementSpeed:
+    raw: 3276
 --- !u!114 &810573848
 MonoBehaviour:
   m_ObjectHideFlags: 0

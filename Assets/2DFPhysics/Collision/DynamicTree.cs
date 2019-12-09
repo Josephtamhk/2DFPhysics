@@ -41,7 +41,7 @@ namespace TF.Core
         }
 
         #region Queries
-        internal TFRaycastHit2D Raycast(ITreeRaycastCallback callback, FixVec2 pointA, FixVec2 pointB)
+        internal TFRaycastHit2D Raycast(ITreeRaycastCallback callback, FixVec2 pointA, FixVec2 pointB, TFLayerMask mask)
         {
             TFRaycastHit2D hit = new TFRaycastHit2D();
             FixVec2 r = pointB - pointA;
@@ -99,7 +99,7 @@ namespace TF.Core
                 {
                     // If value is >= 0, then we hit the node.
                     TFRaycastHit2D rHit;
-                    Fix value = callback.RayCastCallback(pointA, pointB, maxFraction, nodeId, out rHit);
+                    Fix value = callback.RayCastCallback(pointA, pointB, maxFraction, nodeId, out rHit, mask);
 
                     if (value == Fix.zero)
                     {
@@ -112,11 +112,18 @@ namespace TF.Core
                         break;
                     }
 
-                    if (value > Fix.zero)
+                    if(value == maxFraction)
                     {
                         if (rHit)
                         {
-                            // We actually hit the node, add it to th elist.
+                            // We actually hit the node, add it to the list.
+                            hitNodes.Add(new TFRaycastOutput(nodeId, rHit));
+                        }
+                    } else if (value > Fix.zero)
+                    {
+                        if (rHit)
+                        {
+                            // We actually hit the node, add it to the list.
                             hitNodes.Add(new TFRaycastOutput(nodeId, rHit));
                         }
                         // Update segment bounding box.

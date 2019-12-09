@@ -273,7 +273,7 @@ public class CharacterController2D : MonoBehaviour
             moveVertically(ref deltaMovement);
 
         // move then update our state
-        tfTransform.Position += deltaMovement;
+        rigidBody2D.Position += deltaMovement;
 
         // only calculate velocity if we have a non-zero deltaTime
         if (Time.deltaTime > 0f)
