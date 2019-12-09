@@ -266,6 +266,8 @@ namespace TF.Core
 
             Fix fraction = hit.fraction;
             FixVec2 point = (Fix.one - fraction) * pointA + fraction * pointB;
+            hit.point = point;
+            hit.distance = (point - pointA).GetMagnitude();
             return RayCastCallback(rigid, hit.point, hit.normal, hit.fraction);
         }
 
