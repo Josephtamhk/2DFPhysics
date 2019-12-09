@@ -27,7 +27,7 @@ using UnityEngine;
 namespace FixedPointy {
     [Serializable]
 	public struct FixVec2 {
-		public static readonly FixVec2 zero = new FixVec2();
+		public static readonly FixVec2 zero = new FixVec2(0, 0);
 		public static readonly FixVec2 one = new FixVec2(1, 1);
         public static readonly FixVec2 right = new FixVec2(1, 0);
         public static readonly FixVec2 up = new FixVec2(0, 1);

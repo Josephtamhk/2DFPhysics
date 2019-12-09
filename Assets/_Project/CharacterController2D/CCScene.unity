@@ -330,7 +330,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   body: {fileID: 810573846}
   tdTransform: {fileID: 810573843}
-  isTrigger: 0
+  isTrigger: 1
   offset:
     x:
       raw: 0
@@ -431,7 +431,12 @@ MonoBehaviour:
   rb: {fileID: 810573846}
   charController: {fileID: 810573848}
   movementSpeed:
-    raw: 3276
+    raw: 131072
+  velo:
+    x:
+      raw: 0
+    y:
+      raw: 0
 --- !u!114 &810573848
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -454,7 +459,7 @@ MonoBehaviour:
   oneWayPlatformMask:
     mask: 0
   slopeLimit:
-    raw: 1966080
+    raw: 3276800
   jumpingThreshold:
     raw: 4587
   slopeSpeedMultiplier:
@@ -490,8 +495,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  totalHorizontalRays: 8
-  totalVerticalRays: 4
+  totalHorizontalRays: 5
+  totalVerticalRays: 3
 --- !u!1 &946906647
 GameObject:
   m_ObjectHideFlags: 0

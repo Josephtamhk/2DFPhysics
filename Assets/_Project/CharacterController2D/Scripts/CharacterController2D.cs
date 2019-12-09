@@ -81,7 +81,7 @@ public class CharacterController2D : MonoBehaviour
         set
         {
             _skinWidth = value;
-            //recalculateDistanceBetweenRays();
+            recalculateDistanceBetweenRays();
         }
     }
 
@@ -168,6 +168,8 @@ public class CharacterController2D : MonoBehaviour
     // the reason is so that if we reach the end of the slope we can make an adjustment to stay grounded
     bool _isGoingUpSlope = false;
 
+    public bool debugMode;
+
     #region Monobehaviour
     void Awake()
     {
@@ -220,10 +222,12 @@ public class CharacterController2D : MonoBehaviour
 
     #endregion
 
-    [System.Diagnostics.Conditional("DEBUG_CC2D_RAYS")]
     void DrawRay(Vector3 start, Vector3 dir, Color color)
     {
-        Debug.DrawRay(start, dir, color);
+        if (debugMode)
+        {
+            Debug.DrawRay(start, dir, color);
+        }
     }
 
     private void Update()
@@ -494,8 +498,9 @@ public class CharacterController2D : MonoBehaviour
 
         for (var i = 0; i < totalVerticalRays; i++)
         {
-            var ray = new FixVec2(initialRayOrigin.x + i * _horizontalDistanceBetweenRays, initialRayOrigin.y);
+            FixVec2 ray = new FixVec2(initialRayOrigin.x + i * _horizontalDistanceBetweenRays, initialRayOrigin.y);
 
+            DrawRay((Vector3)ray, (Vector3)(rayDirection * rayDistance), Color.red);
             _raycastHit = TFPhysics.Raycast(ray, rayDirection, rayDistance, mask);
             if (_raycastHit)
             {

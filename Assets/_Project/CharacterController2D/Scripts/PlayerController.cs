@@ -11,22 +11,36 @@ public class PlayerController : MonoBehaviour
 
     public Fix movementSpeed = (Fix)0.3f;
 
+    public FixVec2 velo;
+
     private void Update()
     {
+        Fix dt = (Fix)Time.deltaTime;
         if (Input.GetKey(KeyCode.A))
         {
-            charController.move(FixVec2.right * -movementSpeed);
+            velo.x = -movementSpeed * dt;
         } else if (Input.GetKey(KeyCode.D))
         {
-            charController.move(FixVec2.right * movementSpeed);
+            velo.x = movementSpeed * dt;
+        }
+        else
+        {
+            velo.x = 0;
         }
 
         if (Input.GetKey(KeyCode.W))
         {
-            charController.move(FixVec2.up * movementSpeed);
-        }else if (Input.GetKey(KeyCode.S))
-        {
-            charController.move(FixVec2.up * -movementSpeed);
+            velo.y = movementSpeed * dt;
         }
+        else if (Input.GetKey(KeyCode.S))
+        {
+            velo.y = -movementSpeed * dt;
+        }
+        else
+        {
+            velo.y = 0;
+        }
+
+        charController.move(velo);
     }
 }
