@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using FixedPointy;
+using TF;
 using TF.Colliders;
 using System;
 using Unity.Collections;
@@ -91,7 +92,7 @@ namespace TF.Core
         [SerializeField] public Fix mass = 1;
         [SerializeField] public Fix inertia = 0;
         [SerializeField] public Fix gravityScale = 1;
-        public int layer;
+        [SerializeField] [TFLayer] public int layer;
         [ReadOnly] public FPRInfo info;
         public AABB bounds;
 

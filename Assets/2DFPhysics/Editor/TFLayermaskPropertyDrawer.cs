@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-
 namespace TF.Core.Editor
 {
     [CustomPropertyDrawer(typeof(TFLayerMask))]
