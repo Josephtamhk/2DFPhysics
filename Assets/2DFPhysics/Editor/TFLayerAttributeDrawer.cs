@@ -15,7 +15,7 @@ namespace TF.Core.Editor
 
             position = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Passive), label);
 
-            property.intValue = EditorGUI.MaskField(position,
+            property.intValue = EditorGUI.Popup(position,
                 property.intValue, TFPhysics.instance.settings.layers);
         }
     }
