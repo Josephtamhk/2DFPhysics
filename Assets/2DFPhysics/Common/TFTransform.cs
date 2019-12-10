@@ -46,8 +46,8 @@ namespace TF.Core
             }
         }
 
-        [SerializeField] private FixVec3 position;
-        [SerializeField] private FixVec3 localScale;
+        [SerializeField] private FixVec3 position = new FixVec3(0, 0, 0);
+        [SerializeField] private FixVec3 localScale = new FixVec3(1, 1, 1);
         [HideInInspector] private Mat22 rotation;
 
         public void OnValidate()
