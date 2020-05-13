@@ -60,8 +60,8 @@ namespace TF.Core{
         public static AABB Union(AABB a, AABB b)
         {
             AABB C;
-            C.min = new FixVec2(FixMath.Min(a.min.X, b.min.X), FixMath.Min(a.min.Y, b.min.Y));
-            C.max = new FixVec2(FixMath.Max(a.max.X, b.max.X), FixMath.Max(a.max.Y, b.max.Y));
+            C.min = new FixVec2(FixMath.Min(a.min.x, b.min.x), FixMath.Min(a.min.y, b.min.y));
+            C.max = new FixVec2(FixMath.Max(a.max.x, b.max.x), FixMath.Max(a.max.y, b.max.y));
             return C;
         }
 

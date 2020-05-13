@@ -17,19 +17,19 @@ namespace TF.Colliders
         // Used when we only change position.
         public override void MoveAABB(FixVec2 posDiff)
         {
-            boundingBox.min.x += posDiff.X;
-            boundingBox.min.y += posDiff.Y;
-            boundingBox.max.x += posDiff.X;
-            boundingBox.max.y += posDiff.Y;
+            boundingBox.min.x += posDiff.x;
+            boundingBox.min.y += posDiff.y;
+            boundingBox.max.x += posDiff.x;
+            boundingBox.max.y += posDiff.y;
         }
 
         // Used when we rotate or radius is changed.
         public override void RecalcAABB(FixVec2 pos)
         {
-            boundingBox.min.x = -radius + pos.X;
-            boundingBox.min.y = -radius + pos.Y;
-            boundingBox.max.x = radius + pos.X;
-            boundingBox.max.y = radius + pos.Y;
+            boundingBox.min.x = -radius + pos.x;
+            boundingBox.min.y = -radius + pos.y;
+            boundingBox.max.x = radius + pos.x;
+            boundingBox.max.y = radius + pos.y;
         }
 
         public override TFColliderType GetCType()
@@ -77,7 +77,7 @@ namespace TF.Colliders
         {
             // Draw a yellow sphere at the transform's position
             UnityEditor.Handles.color = Color.green;
-            Handles.DrawWireDisc(transform.position + (new Vector3((float)offset.X, (float)offset.Y, 0)), Vector3.forward, ((float)radius));
+            Handles.DrawWireDisc(transform.position + (new Vector3((float)offset.x, (float)offset.y, 0)), Vector3.forward, ((float)radius));
         }
 #endif
     }

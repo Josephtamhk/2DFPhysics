@@ -217,7 +217,7 @@ namespace TF.Core
             // Predict AABB displacement.
             FixVec2 d = TFPhysics.instance.settings.aabbMultiplier * displacement;
 
-            if (d.X < Fix.zero)
+            if (d.x < Fix.zero)
             {
                 b.min.x += d.x;
             }
@@ -226,13 +226,13 @@ namespace TF.Core
                 b.max.x += d.x;
             }
 
-            if (d.Y < Fix.zero)
+            if (d.y < Fix.zero)
             {
-                b.min.y += d.Y;
+                b.min.y += d.y;
             }
             else
             {
-                b.max.y += d.Y;
+                b.max.y += d.y;
             }
 
             nodes[proxyId].aabb = b;

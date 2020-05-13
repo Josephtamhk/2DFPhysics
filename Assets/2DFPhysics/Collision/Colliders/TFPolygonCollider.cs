@@ -37,37 +37,37 @@ namespace TF.Colliders
         // Used when we only change position.
         public override void MoveAABB(FixVec2 posDiff)
         {
-            boundingBox.min.x += posDiff.X;
-            boundingBox.min.y += posDiff.Y;
-            boundingBox.max.x += posDiff.X;
-            boundingBox.max.y += posDiff.Y;
+            boundingBox.min.x += posDiff.x;
+            boundingBox.min.y += posDiff.y;
+            boundingBox.max.x += posDiff.x;
+            boundingBox.max.y += posDiff.y;
         }
 
         // Used when we rotate or vertices are added/removed.
         public override void RecalcAABB(FixVec2 pos)
         {
-            boundingBox.min.x = pos.X;
-            boundingBox.max.x = pos.X;
-            boundingBox.min.y = pos.Y;
-            boundingBox.max.y = pos.Y;
+            boundingBox.min.x = pos.x;
+            boundingBox.max.x = pos.x;
+            boundingBox.min.y = pos.y;
+            boundingBox.max.y = pos.y;
             for (int i = 0; i < vertices.Count; i++)
             {
                 FixVec2 v = u.Transposed() * (vertices[i] * tdTransform.LocalScale);
-                if (v.X + pos.x < boundingBox.min.X)
+                if (v.x + pos.x < boundingBox.min.x)
                 {
-                    boundingBox.min.x = v.X + pos.x;
+                    boundingBox.min.x = v.x + pos.x;
                 }
-                if (v.Y + pos.y < boundingBox.min.Y)
+                if (v.y + pos.y < boundingBox.min.y)
                 {
-                    boundingBox.min.y = v.Y + pos.y;
+                    boundingBox.min.y = v.y + pos.y;
                 }
-                if (v.X + pos.x > boundingBox.max.X)
+                if (v.x + pos.x > boundingBox.max.x)
                 {
-                    boundingBox.max.x = v.X + pos.x;
+                    boundingBox.max.x = v.x + pos.x;
                 }
-                if (v.Y + pos.y > boundingBox.max.Y)
+                if (v.y + pos.y > boundingBox.max.y)
                 {
-                    boundingBox.max.y = v.Y + pos.y;
+                    boundingBox.max.y = v.y + pos.y;
                 }
             }
         }
@@ -81,10 +81,10 @@ namespace TF.Colliders
         {
             // Find the right most point on the hull
             int rightMost = 0;
-            Fix highestXCoord = verts[0].X;
+            Fix highestXCoord = verts[0].x;
             for(int i = 1; i < verts.Count; ++i)
             {
-                Fix x = verts[i].X;
+                Fix x = verts[i].x;
 
                 if(x > highestXCoord)
                 {
@@ -94,7 +94,7 @@ namespace TF.Colliders
                 // If matching x then take farthest negative y
                 else if(x == highestXCoord)
                 {
-                    if(verts[i].Y < verts[rightMost].Y)
+                    if(verts[i].y < verts[rightMost].y)
                     {
                         rightMost = i;
                     }
@@ -172,7 +172,7 @@ namespace TF.Colliders
                 FixVec2 face = vertices[(i + 1) % vertices.Count] - vertices[i];
 
                 // Calculate normal with 2D cross product between vector and scalar
-                normals[i] = new FixVec2(face.Y, -face.X);
+                normals[i] = new FixVec2(face.y, -face.x);
                 normals[i] = normals[i].Normalized();
             }
         }

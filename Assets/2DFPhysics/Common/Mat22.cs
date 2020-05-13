@@ -101,7 +101,7 @@ namespace TF.Core
 
         public static FixVec2 operator *(Mat22 lhs, FixVec2 rhs)
         {
-            return new FixVec2((lhs.m00*rhs.X) + (lhs.m01*rhs.Y), (lhs.m10*rhs.X) + (lhs.m11*rhs.Y));
+            return new FixVec2((lhs.m00*rhs.x) + (lhs.m01*rhs.y), (lhs.m10*rhs.x) + (lhs.m11*rhs.y));
         }
 
         public static Mat22 operator *(Mat22 lhs, Mat22 rhs)

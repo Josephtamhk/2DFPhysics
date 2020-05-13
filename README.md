@@ -1,7 +1,7 @@
 # 2DFPhysics
 2D Fixed-Point Physics for usage in Unity.
 
-Currently built on Unity **2019.2.3f1**, but can work on lower versions.
+Currently built on Unity **2019.2.8f1**, but can work on lower versions.
  
 ## Goals
 1. Deterministic. Should get the same result on all platforms. 

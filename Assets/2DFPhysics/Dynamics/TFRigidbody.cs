@@ -117,7 +117,7 @@ namespace TF.Core
             info.angularVelocity = Fix.zero;
             info.torque = Fix.zero;
             info.force = FixVec2.zero;
-
+            
             invMass = mass != Fix.zero ? Fix.one / mass : Fix.zero;
             invInertia = inertia != Fix.zero ? Fix.one / inertia : Fix.zero;
             RecalcAABB();

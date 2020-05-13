@@ -69,7 +69,7 @@ namespace TF.Core
             sidePlaneNormal = sidePlaneNormal.Normalized();
 
             // Orthogonalize
-            FixVec2 refFaceNormal = new FixVec2(sidePlaneNormal.Y, -sidePlaneNormal.X);
+            FixVec2 refFaceNormal = new FixVec2(sidePlaneNormal.y, -sidePlaneNormal.x);
 
             // ax + by = c
             // c is distance from origin
